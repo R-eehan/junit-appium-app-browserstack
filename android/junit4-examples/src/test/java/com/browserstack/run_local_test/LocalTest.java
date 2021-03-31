@@ -10,6 +10,7 @@ import org.apache.commons.io.FileUtils;
 import io.appium.java_client.MobileBy;
 import io.appium.java_client.android.AndroidElement;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -19,30 +20,26 @@ public class LocalTest extends BrowserStackJUnitTest {
 
   @Test
   public void test() throws Exception {
-    AndroidElement searchElement = (AndroidElement) new WebDriverWait(driver, 30).until(
-        ExpectedConditions.elementToBeClickable(MobileBy.id("com.example.android.basicnetworking:id/test_action")));
-    searchElement.click();
-    AndroidElement insertTextElement = (AndroidElement) new WebDriverWait(driver, 30).until(
-        ExpectedConditions.elementToBeClickable(MobileBy.className("android.widget.TextView")));
+	  AndroidElement searchElement = (AndroidElement) new WebDriverWait(driver, 30).until(
+			  ExpectedConditions.elementToBeClickable(MobileBy.AccessibilityId("Search Wikipedia")));
+	  searchElement.click();
 
-    AndroidElement testElement = null;
-    List<AndroidElement> allTextViewElements = driver.findElementsByClassName("android.widget.TextView");
-    Thread.sleep(10);
-    for(AndroidElement textElement : allTextViewElements) {
-      if(textElement.getText().contains("The active connection is")) {
-        testElement = textElement;
-      }
-    }
+	  Thread.sleep(4000);
 
-    if(testElement == null) {
-      File scrFile = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
-      FileUtils.copyFile(scrFile, new File(System.getProperty("user.dir") + "screenshot.png"));
-      System.out.println("Screenshot stored at " + System.getProperty("user.dir") + "screenshot.png");
-      throw new Error("Cannot find the needed TextView element from app");
-    }
-    String matchedString = testElement.getText();
-    System.out.println(matchedString);
-    assertTrue(matchedString.contains("The active connection is wifi"));
-    assertTrue(matchedString.contains("Up and running"));
+	  AndroidElement insertTextElement = (AndroidElement) new WebDriverWait(driver, 30).until(
+			  ExpectedConditions.elementToBeClickable(MobileBy.id("org.wikipedia.alpha:id/search_src_text")));
+	  insertTextElement.sendKeys("BrowserStack");
+
+	  Thread.sleep(4000);
+
+	  driver.closeApp();
+	  driver.activateApp("com.android.chrome"); //Method to launch app in Android with bundle ID
+
+	  driver.findElement(By.id("com.android.chrome:id/search_box_text")).click();  //Access the URL bar
+	  driver.findElement(By.id("com.android.chrome:id/url_bar")).sendKeys("http://bs-local.com:8000 \\n");  //Enter the URL in the URL bar
+
+	  Thread.sleep(5000);
+
+	  driver.quit();
   }
 }

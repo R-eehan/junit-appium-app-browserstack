@@ -88,19 +88,36 @@ public class BrowserStackJUnitTest {
             capabilities.setCapability("app", app);
         }
 
-        if (capabilities.getCapability("browserstack.local") != null && capabilities.getCapability("browserstack.local") == "true") {
-            local = new Local();
-            Map<String, String> options = new HashMap<String, String>();
-            options.put("key", accessKey);
-            local.start(options);
-        }
+//        if (capabilities.getCapability("browserstack.local") != null && capabilities.getCapability("browserstack.local") == "true") {
+//            local = new Local();
+//            Map<String, String> options = new HashMap<String, String>();
+//            options.put("key", accessKey);
+//            local.start(options);
+//        }
+
+		//code to obtain Local Testing related ENV variables from Jenkins
+		String browserstackLocal = System.getenv("BROWSERSTACK_LOCAL");
+		String browserstackLocalIdentifier = System.getenv("BROWSERSTACK_LOCAL_IDENTIFIER");
+
+		capabilities.setCapability("browserstack.local", browserstackLocal);
+		capabilities.setCapability("browserstack.localIdentifier", browserstackLocalIdentifier);
+
+		//Setting build name from Jenkins ENV variable for reports
+		String buildName = System.getenv("BROWSERSTACK_BUILD_NAME");
+		capabilities.setCapability("build", buildName);
+
+		//Simple print statements to check if environment variables were set as expected
+		System.out.println(browserstackLocal);
+		System.out.println(browserstackLocalIdentifier);
+		System.out.println(buildName);
+		System.out.println(capabilities);
 
         driver = new AndroidDriver(new URL("http://" + username + ":" + accessKey + "@" + config.get("server") + "/wd/hub"), capabilities);
     }
 
     @After
     public void tearDown() throws Exception {
-        // Invoke driver.quit() to indicate that the test is completed. 
+        // Invoke driver.quit() to indicate that the test is completed.
         // Otherwise, it will appear as timed out on BrowserStack.
         driver.quit();
         if (local != null) local.stop();
